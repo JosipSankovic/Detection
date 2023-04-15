@@ -34,7 +34,7 @@ private:
 
 	std::vector<detectedObject> decriptOutput(std::vector<Ort::Value>& output, const cv::Mat& frame);
 
-	void getBestClassInfo(std::vector<float>::iterator it, const int& numClasses,
+	void getBestClassInfo(const cv::Mat& p_Mat, const int& numClasses,
 		float& bestConf, int& bestClassId);
 	
 public:

@@ -118,39 +118,36 @@ using namespace std;
 		size_t count = outputTensors[0].GetTensorTypeAndShapeInfo().GetElementCount();
 		std::vector<float> output(outputTensors[0].GetTensorData<float>(), outputTensors[0].GetTensorData<float>() + count);
 
-		int numClasses = (int)outputShape[1] - 4;
+		cv::Mat l_Mat = cv::Mat(outputShape[1], outputShape[2], CV_32FC1, (void*)outputTensors[0].GetTensorData<float>());
+		cv::Mat l_Mat_t = l_Mat.t();
+
+		int numClasses = l_Mat_t.cols - 4;
 		int elementsInBatch = (int)(outputShape[1] * outputShape[2]);
 		float r[2] = { (float)frame.size().width / 640,(float)frame.size().height / 640 };
-		for (auto it = output.begin(); it != output.begin() + elementsInBatch; it += outputShape[1])
+
+		for (int l_Row = 0; l_Row < l_Mat_t.rows; l_Row++)
 		{
-			float clsConf = it[4];
+			cv::Mat l_MatRow = l_Mat_t.row(l_Row);
 			float objConf;
 			int classId;
-			//getBestClassInfo(it, numClasses, objConf, classId);
+
+			getBestClassInfo(l_MatRow, numClasses, objConf, classId);
 			
-			if (clsConf > confidenceRate)
+			if (objConf > 0.5)
 			{
-				int centerX = (int)(it[0])*r[0];
-				int centerY = (int)(it[1])*r[1];
-				int width = (int)(it[2]) * r[0];
-				int height = (int)(it[3]) * r[1];
-				int left = centerX - width / 2;
-				int top = centerY - height / 2;
+				float centerX = (l_MatRow.at<float>(0, 0));
+				float centerY = (l_MatRow.at<float>(0, 1));
+				float width = (l_MatRow.at<float>(0, 2));
+				float height = (l_MatRow.at<float>(0, 3));
+				float left = centerX - width / 2;
+				float top = centerY - height / 2;
 
-				float objConf = it[4];
-				int classId = 0;
-
-
-				for (int i = 5; i < numClasses + 5; i++)
-				{
-					if (it[i] > objConf)
-					{
-						objConf = it[i];
-						classId = i - 5;
-					}
-				}
 				
-				float confidence = clsConf * objConf;
+
+
+				float confidence = objConf;
+				
+				
 
 				boxes.emplace_back(left, top, width, height);
 				confs.emplace_back(confidence);
@@ -202,22 +199,23 @@ using namespace std;
 	}
 
 
-	void YoloObject::getBestClassInfo(std::vector<float>::iterator it, const int& numClasses,
+	void YoloObject::getBestClassInfo(const cv::Mat& p_Mat, const int& numClasses,
 		float& bestConf, int& bestClassId)
 	{
-		// first 5 element are box and obj confidence
-		bestClassId = 5;
+		bestClassId = 0;
 		bestConf = 0;
 
-		for (int i = 5; i < numClasses + 5; i++)
+		if (p_Mat.rows && p_Mat.cols)
 		{
-			if (it[i] > bestConf)
+			for (int i = 0; i < numClasses; i++)
 			{
-				bestConf = it[i];
-				bestClassId = i - 5;
+				if (p_Mat.at<float>(0, i + 4) > bestConf)
+				{
+					bestConf = p_Mat.at<float>(0, i + 4);
+					bestClassId = i;
+				}
 			}
 		}
-
 	}
 
 	

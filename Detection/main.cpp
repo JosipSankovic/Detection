@@ -11,7 +11,7 @@ int main()
 {
     cv::Mat frame,second;
     cv::VideoCapture video(0);
-    YoloObject detection(L"Models/yolov5n.onnx", FilePath + "classes.txt");
+    YoloObject detection(L"Models/yolov8n.onnx", FilePath + "classes.txt");
     
     for (int i = 0; i < 100; i++)
         video >> frame;

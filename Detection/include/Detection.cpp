@@ -118,14 +118,16 @@ using namespace std;
 		size_t count = outputTensors[0].GetTensorTypeAndShapeInfo().GetElementCount();
 		std::vector<float> output(outputTensors[0].GetTensorData<float>(), outputTensors[0].GetTensorData<float>() + count);
 
-		int numClasses = (int)outputShape[2] - 5;
+		int numClasses = (int)outputShape[1] - 4;
 		int elementsInBatch = (int)(outputShape[1] * outputShape[2]);
 		float r[2] = { (float)frame.size().width / 640,(float)frame.size().height / 640 };
-		for (auto it = output.begin(); it != output.begin() + elementsInBatch; it += outputShape[2])
+		for (auto it = output.begin(); it != output.begin() + elementsInBatch; it += outputShape[1])
 		{
 			float clsConf = it[4];
-
-
+			float objConf;
+			int classId;
+			//getBestClassInfo(it, numClasses, objConf, classId);
+			
 			if (clsConf > confidenceRate)
 			{
 				int centerX = (int)(it[0])*r[0];

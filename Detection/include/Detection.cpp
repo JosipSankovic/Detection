@@ -125,6 +125,7 @@ using namespace std;
 		{
 			float clsConf = it[4];
 
+
 			if (clsConf > confidenceRate)
 			{
 				int centerX = (int)(it[0])*r[0];

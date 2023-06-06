@@ -32,7 +32,7 @@ private:
 
 	void preprocessing(const cv::Mat& frame);
 
-	std::vector<detectedObject> decriptOutput(std::vector<Ort::Value>& output, const cv::Mat& frame);
+	void decriptOutput(std::vector<Ort::Value>& output, const cv::Mat& frame, std::vector<detectedObject>& data);
 
 	void getBestClassInfo(const cv::Mat& p_Mat, const int& numClasses,
 		float& bestConf, int& bestClassId);
@@ -41,5 +41,6 @@ public:
 
 	std::vector<std::string> classNames;
 	YoloObject(const wchar_t* model_path, std::string class_path);
-	std::vector<detectedObject> detect(const cv::Mat& frame);
+	void detect(const cv::Mat& frame,std::vector<detectedObject>& objects);
+	void drawDetectedObjectaOnFrame(cv::Mat& frame,const std::vector<detectedObject>& objects);
 };

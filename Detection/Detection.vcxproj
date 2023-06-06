@@ -149,15 +149,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="include\Detection.cpp" />
+    <ClCompile Include="include\Tracking.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="centroidtracker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Detection.h" />
-    <ClInclude Include="centroidtracker.h" />
+    <ClInclude Include="include\Tracking.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

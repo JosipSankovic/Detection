@@ -21,7 +21,7 @@
     <ClCompile Include="include\Detection.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="centroidtracker.cpp">
+    <ClCompile Include="include\Tracking.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -34,7 +34,7 @@
     <ClInclude Include="include\Detection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="centroidtracker.h">
+    <ClInclude Include="include\Tracking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

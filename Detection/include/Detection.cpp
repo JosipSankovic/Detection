@@ -27,7 +27,6 @@ using namespace std;
 		cout << "Make session" << endl;
 		try {
 			sessionOptions.SetIntraOpNumThreads(thread::hardware_concurrency()/2);
-			
 			cout << thread::hardware_concurrency() << endl;
 			this->session = Ort::Session(env, model_path, sessionOptions);
 		}
@@ -75,9 +74,10 @@ using namespace std;
 			
 	}
 
-	std::vector<detectedObject> YoloObject::detect(const cv::Mat& frame) {
+	void YoloObject::detect(const cv::Mat& frame,std::vector<detectedObject>& objects) {
 
 		std::vector<const char*> inputNames, outputNames;
+		objects.clear();
 		
 		auto input_name = session.GetInputNameAllocated(0, allocator);
 		auto output_name = session.GetOutputNameAllocated(0, allocator);
@@ -104,11 +104,11 @@ using namespace std;
 			1);
 		
 		delete this->blob;
-		return decriptOutput(outputTensors, frame);
+		decriptOutput(outputTensors, frame,objects);
 	}
 
-	std::vector<detectedObject> YoloObject::decriptOutput(std::vector<Ort::Value>& outputTensors,const cv::Mat& frame) {
-		std::vector<detectedObject> data;
+	void YoloObject::decriptOutput(std::vector<Ort::Value>& outputTensors,const cv::Mat& frame, std::vector<detectedObject>& data) {
+		
 		std::vector<cv::Rect> boxes;
 		std::vector<float> confs;
 		std::vector<int> classIds;
@@ -133,7 +133,7 @@ using namespace std;
 
 			getBestClassInfo(l_MatRow, numClasses, objConf, classId);
 			
-			if (objConf > 0.5)
+			if (objConf > confidenceRate)
 			{
 				float centerX = (l_MatRow.at<float>(0, 0));
 				float centerY = (l_MatRow.at<float>(0, 1));
@@ -160,7 +160,7 @@ using namespace std;
 		}
 
 		vector<int> indices;
-		cv::dnn::NMSBoxes(boxes, confs, confidenceRate, 0.5, indices);
+		cv::dnn::NMSBoxes(boxes, confs, confidenceRate, 0.3, indices);
 
 		
 		
@@ -169,33 +169,13 @@ using namespace std;
 			detectedObject det;
 			det.box = cv::Rect(boxes[idx]);
 			float* ratio = new float[2];
-			
-			
-
-			
 			det.conf = confs[idx];
 			det.classId = classIds[idx];
 			data.emplace_back(det);
 		}
 
 
-		for (const detectedObject& detection : data)
-		{
-			cv::rectangle(frame, detection.box, cv::Scalar(229, 160, 21), 2);
-
-			int x = detection.box.x;
-			int y = detection.box.y;
-			
-			int conf = (int)round(detection.conf * 100);
-			int classId = detection.classId;
-
-
-			cv::putText(frame, classNames[classId] + " conf: " + to_string(conf), cv::Point(x - 10, y - 10), 0.5, 0.5, cv::Scalar(200, 150, 20), 1);
-
-
-		}
-
-		return data;
+		
 	}
 
 
@@ -218,4 +198,22 @@ using namespace std;
 		}
 	}
 
-	
+	void YoloObject::drawDetectedObjectaOnFrame(cv::Mat& frame, const std::vector<detectedObject>& objects) {
+
+		for (const detectedObject& detection : objects)
+		{
+			cv::rectangle(frame, detection.box, cv::Scalar(229, 160, 21), 2);
+
+			int x = detection.box.x;
+			int y = detection.box.y;
+
+			int conf = (int)round(detection.conf * 100);
+			int classId = detection.classId;
+
+			cv::putText(frame, classNames[classId] + " conf: " + to_string(conf), cv::Point(x - 10, y - 10), 0.5, 0.5, cv::Scalar(200, 150, 20), 1);
+
+
+		}
+
+
+	}
